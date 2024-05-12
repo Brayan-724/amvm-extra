@@ -1,0 +1,68 @@
+program = _{ SOI ~ (comment | statement)* ~ EOI }
+
+// Statements
+statement         = { (break_ | if_stmt | while_loop | const_declaration | let_declaration | assignment | expr) ~ ";"? }
+assignment        = { ident ~ "=" ~ expr }
+const_declaration = { "const" ~ ident ~ "=" ~ expr }
+if_stmt           = { "if" ~ fenced_expr ~ block ~ ("else" ~ block)? }
+let_declaration   = { "let" ~ ident ~ "=" ~ expr }
+while_loop        = { "while" ~ fenced_expr ~ block }
+break_            = { "break" }
+
+block = { "{" ~ (comment | statement)* ~ "}" }
+
+// Expr
+fenced_expr = _{ "(" ~ expr ~ ")" }
+expr        =  { expr2 ~ (binary_op ~ expr2)* }
+expr2       = _{ fenced_expr | access_ident | access_expr | call | monoexpr }
+monoexpr    = _{ literal_expr | ident }
+
+access_expr = { (ident | fenced_expr) ~ "[" ~ expr ~ "]" }
+access_ident = { (ident | fenced_expr) ~  "." ~ ident }
+call   = { (ident | fenced_expr) ~ "(" ~ (expr ~ ("," ~ expr)*)? ~ ")" }
+
+literal_expr   =  { boolean | number | string }
+number         = @{ "-"? ~ (NUMBER+ ~ ("." ~ NUMBER*)? | (NUMBER* ~ ".")? ~ NUMBER+) }
+string         = ${ quote ~ string_content ~ quote }
+boolean        =  { "true" | "false" }
+string_content = @{ (!quote ~ ANY)* }
+
+quote = _{ "\"" }
+
+binary_op = _{
+    // math
+    add
+  | subtract
+  | multiply
+  | divide // logical
+
+  | not_equal
+  | equal
+  | less_equal
+  | less_than
+  | greater_equal
+  | greater_than
+}
+// math
+add      = { "+" }
+subtract = { "-" }
+multiply = { "*" }
+divide   = { "/" }
+// logical
+equal         = { "===" | "==" }
+not_equal     = { "!==" | "!=" }
+less_than     = { "<" }
+less_equal    = { "<=" }
+greater_than  = { ">" }
+greater_equal = { ">=" }
+
+// Meta
+ident = @{ ASCII_ALPHA ~ ("_" | ASCII_ALPHANUMERIC)* }
+
+comment       = _{ line_comment | doc_comment | block_comment }
+line_comment  = @{ "//" ~ (!NEWLINE ~ ANY)* }
+block_comment =  { (!"/**") ~ "/*" ~ ANY* ~ "*/" }
+doc_comment   =  { "/**" ~ ANY* ~ "*/" }
+
+// Pest
+WHITESPACE = _{ " " | NEWLINE | "\t" }
