@@ -17,9 +17,9 @@ expr        =  { expr2 ~ (binary_op ~ expr2)* }
 expr2       = _{ fenced_expr | access_ident | access_expr | call | monoexpr }
 monoexpr    = _{ literal_expr | ident }
 
-access_expr = { (ident | fenced_expr) ~ "[" ~ expr ~ "]" }
+access_expr  = { (ident | fenced_expr) ~ "[" ~ expr ~ "]" }
 access_ident = { (ident | fenced_expr) ~  "." ~ ident }
-call   = { (ident | fenced_expr) ~ "(" ~ (expr ~ ("," ~ expr)*)? ~ ")" }
+call         = { (ident | fenced_expr) ~ "(" ~ (expr ~ ("," ~ expr)*)? ~ ")" }
 
 literal_expr   =  { boolean | number | string }
 number         = @{ "-"? ~ (NUMBER+ ~ ("." ~ NUMBER*)? | (NUMBER* ~ ".")? ~ NUMBER+) }
@@ -30,7 +30,7 @@ string_content = @{ (!quote ~ ANY)* }
 quote = _{ "\"" }
 
 binary_op = _{
-    // math
+  // math
     add
   | subtract
   | multiply
